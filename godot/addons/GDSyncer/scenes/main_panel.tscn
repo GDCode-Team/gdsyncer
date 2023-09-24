@@ -1,0 +1,363 @@
+[gd_scene load_steps=6 format=3 uid="uid://bdyhlcfpspdik"]
+
+[ext_resource type="Texture2D" uid="uid://qw31k04jldpa" path="res://addons/GDSyncer/assets/icons/ip-address.png" id="1_1j3rd"]
+[ext_resource type="Script" path="res://addons/GDSyncer/scripts/main_panel.gd" id="1_rn33w"]
+[ext_resource type="Texture2D" uid="uid://cprjbj07y7eia" path="res://addons/GDSyncer/assets/icons/confirm.svg" id="1_tb3kq"]
+[ext_resource type="Texture2D" uid="uid://bfk6dp4wq6i7b" path="res://addons/GDSyncer/assets/icons/password.png" id="2_nb556"]
+[ext_resource type="Texture2D" uid="uid://d1kncwt85upkp" path="res://addons/GDSyncer/assets/icons/connect.png" id="4_kbla1"]
+
+[node name="MainPanel" type="Control"]
+layout_mode = 3
+anchor_left = 0.51
+anchor_top = 0.496
+anchor_right = 0.51
+anchor_bottom = 0.5
+offset_left = -408.0
+offset_top = -248.0
+offset_right = 392.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_rn33w")
+
+[node name="Tabs" type="TabContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = 3.05176e-05
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Server" type="TabBar" parent="Tabs"]
+layout_mode = 2
+
+[node name="Settings" type="Panel" parent="Tabs/Server"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.629167
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsLabel" type="Label" parent="Tabs/Server/Settings"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "Settings
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VSeparator" type="VSeparator" parent="Tabs/Server/Settings"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 33.0
+offset_right = -0.333618
+offset_bottom = -116.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HSeparator" type="HSeparator" parent="Tabs/Server/Settings/VSeparator"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.997
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 23.0
+offset_top = -0.0400085
+offset_right = -23.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="Tabs/Server/Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.048
+anchor_top = 0.087
+anchor_right = 0.476655
+anchor_bottom = 0.7359
+offset_left = -1.16001
+offset_top = 0.196995
+offset_right = 0.0832977
+offset_bottom = -0.137009
+grow_horizontal = 2
+grow_vertical = 2
+columns = 2
+
+[node name="AddressLabel" type="Label" parent="Tabs/Server/Settings/GridContainer"]
+layout_mode = 2
+text = "Address: "
+vertical_alignment = 1
+
+[node name="AddressEdit" type="LineEdit" parent="Tabs/Server/Settings/GridContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+placeholder_text = "0.0.0.0:8008"
+alignment = 1
+right_icon = ExtResource("1_1j3rd")
+text_direction = 1
+
+[node name="PasswordLabel" type="Label" parent="Tabs/Server/Settings/GridContainer"]
+layout_mode = 2
+text = "Password:"
+vertical_alignment = 1
+
+[node name="PasswordEdit" type="LineEdit" parent="Tabs/Server/Settings/GridContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+placeholder_text = "optional"
+alignment = 1
+secret = true
+right_icon = ExtResource("2_nb556")
+text_direction = 1
+
+[node name="SaveConfigButton" type="Button" parent="Tabs/Server/Settings"]
+self_modulate = Color(0, 0.686275, 0.866667, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.255616
+anchor_top = 0.633
+anchor_right = 0.256
+anchor_bottom = 0.701407
+offset_left = -34.6602
+offset_top = 0.122986
+offset_right = 35.1467
+offset_bottom = 0.0399475
+text = "Save"
+icon = ExtResource("1_tb3kq")
+metadata/_edit_use_anchors_ = true
+
+[node name="InfoLabel" type="RichTextLabel" parent="Tabs/Server/Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.524503
+anchor_top = 0.0852878
+anchor_right = 0.525
+anchor_bottom = 0.0852878
+offset_right = 215.75
+offset_bottom = 305.0
+bbcode_enabled = true
+text = " The address is the IP address that the client's users connect to. Optionally, you can enter a password for your server.
+ [color=red]WARNING: Anyone who connects to your server can upload malicious scripts to your file system.[/color]
+ "
+
+[node name="Connections" type="Panel" parent="Tabs/Server"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.63295
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.640015
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="ConnectionsLabel" type="Label" parent="Tabs/Server/Connections"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "Connections"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="Tabs/Server/Connections"]
+layout_mode = 0
+offset_left = 101.0
+offset_top = 265.0
+offset_right = 198.0
+offset_bottom = 291.0
+text = "I'll do it later"
+
+[node name="StartButton" type="Button" parent="Tabs/Server"]
+self_modulate = Color(0, 0.686275, 0.866667, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.31475
+anchor_top = 0.799311
+anchor_right = 0.31475
+anchor_bottom = 0.8
+offset_left = -56.8
+offset_top = 0.123169
+offset_right = 56.2
+offset_bottom = 31.8002
+text = "Start/Stop"
+icon = ExtResource("1_1j3rd")
+
+[node name="Client" type="TabBar" parent="Tabs"]
+visible = false
+layout_mode = 2
+
+[node name="Settings" type="Panel" parent="Tabs/Client"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.629167
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SettingsLabel" type="Label" parent="Tabs/Client/Settings"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "Connect to"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VSeparator" type="VSeparator" parent="Tabs/Client/Settings"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 33.0
+offset_right = -0.333618
+offset_bottom = -116.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HSeparator" type="HSeparator" parent="Tabs/Client/Settings/VSeparator"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.997
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 23.0
+offset_top = -0.0400085
+offset_right = -23.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="Tabs/Client/Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.048
+anchor_top = 0.087
+anchor_right = 0.476655
+anchor_bottom = 0.7359
+offset_left = -1.16001
+offset_top = 0.196995
+offset_right = 0.0832977
+offset_bottom = -0.137009
+grow_horizontal = 2
+grow_vertical = 2
+columns = 2
+
+[node name="AddressLabel" type="Label" parent="Tabs/Client/Settings/GridContainer"]
+layout_mode = 2
+text = "Address: "
+vertical_alignment = 1
+
+[node name="AddressEdit" type="LineEdit" parent="Tabs/Client/Settings/GridContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+placeholder_text = "127.0.0.1:8008"
+alignment = 1
+right_icon = ExtResource("1_1j3rd")
+text_direction = 1
+
+[node name="PasswordLabel" type="Label" parent="Tabs/Client/Settings/GridContainer"]
+layout_mode = 2
+text = "Password:"
+vertical_alignment = 1
+
+[node name="PasswordEdit" type="LineEdit" parent="Tabs/Client/Settings/GridContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+placeholder_text = "optional"
+alignment = 1
+secret = true
+right_icon = ExtResource("2_nb556")
+text_direction = 1
+
+[node name="InfoLabel" type="RichTextLabel" parent="Tabs/Client/Settings"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.524503
+anchor_top = 0.0852878
+anchor_right = 0.525
+anchor_bottom = 0.0852878
+offset_right = 215.75
+offset_bottom = 305.0
+bbcode_enabled = true
+text = " The address is the IP address that the client's users connect to. Optionally, you can enter the password for the server you want to connect to.
+ [color=red]WARNING: Servers may contain malicious code, connect to them at your own risk.[/color]
+ "
+
+[node name="ServersHistory" type="Panel" parent="Tabs/Client"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.63295
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.640015
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="ServersHistoryLabel" type="Label" parent="Tabs/Client/ServersHistory"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "Recent servers"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="Tabs/Client/ServersHistory"]
+layout_mode = 0
+offset_left = 101.0
+offset_top = 265.0
+offset_right = 198.0
+offset_bottom = 291.0
+text = "I'll do it later"
+
+[node name="ConnectButton" type="Button" parent="Tabs/Client"]
+self_modulate = Color(0, 0.686275, 0.866667, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.314
+anchor_top = 0.799311
+anchor_right = 0.314
+anchor_bottom = 0.799311
+offset_left = -49.2
+offset_top = 0.122986
+offset_right = 48.8
+offset_bottom = 32.123
+text = "Connect"
+icon = ExtResource("4_kbla1")
+
+[node name="Info" type="TabBar" parent="Tabs"]
+visible = false
+layout_mode = 2
+
+[connection signal="pressed" from="Tabs/Server/Settings/SaveConfigButton" to="." method="_on_save_config_button_pressed"]
+[connection signal="pressed" from="Tabs/Server/StartButton" to="." method="_on_start_button_pressed"]

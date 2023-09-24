@@ -1,0 +1,30 @@
+[package]
+name = "gdsyncer"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# godot = { git = "https://github.com/godot-rust/gdext", branch = "master" }
+godot = {git = "https://github.com/lilizoey/gdextension", branch = "feature/editor-plugin"}
+tokio = { version = "1", features = ["full"] }
+tonic = "0.9"
+tonic-types = "0.9"
+prost = "0.11"
+jwt-simple = "0.11.6"
+serde = { version = "1.0", features = ["derive"] }
+
+[dependencies.uuid]
+version = "1.4.1"
+features = [
+    "v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+]
+
+[build-dependencies]
+tonic-build = "0.9"

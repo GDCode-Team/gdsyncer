@@ -1,0 +1,17 @@
+syntax = "proto3";
+package syncer;
+
+service Syncer {
+    rpc Join (JoinRequest) returns (JoinReply);
+}
+
+message JoinRequest {
+    string name = 1;
+    string password = 2;
+    string version = 3;
+}
+
+message JoinReply {
+    string token = 1;
+    string color = 2;
+}

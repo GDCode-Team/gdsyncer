@@ -1,0 +1,6 @@
+**/target/
+**/Cargo.lock
+/.idea/
+**/.godot/
+*.import
+/godot/addons/plugin_refresher/
