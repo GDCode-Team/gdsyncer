@@ -1,2 +1,9 @@
-# GDSyncer
-Plugin for working on the Godot projects together.
+<center>
+<img src="icon-wide.png" width="1024" height="342">
+
+### A plugin for collaborating on godot projects.
+</center>
+
+## Supported platforms and versions of Godot
+
+#### We currently support only the Windows version of the plugin. The plugin can also work in Linux and Mac OS (not tested). The plugin only works in Godot version 4.1 and above.
