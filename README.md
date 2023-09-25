@@ -1,6 +1,6 @@
 <img src="icon-wide.png">
 
-A plugin for collaborating on Godot projects.
+🌐 A plugin for collaborating on Godot projects.
 
 ## Supported platforms and versions of Godot
 
