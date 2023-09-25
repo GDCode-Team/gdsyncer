@@ -1,5 +1,5 @@
 <center>
-<img src="icon-wide.png" width="1024" height="342">
+<img src="icon-wide.png">
 
 ### A plugin for collaborating on godot projects.
 </center>
