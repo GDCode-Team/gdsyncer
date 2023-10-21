@@ -110,62 +110,26 @@ impl Syncer for ServerBasic {
     }
 }
 
-#[derive(Debug, GodotClass)]
-#[class(tool, base=Node)]
+#[derive(Debug)]
 pub struct Server {
     pub address: SocketAddr,
     pub password: String,
-    runtime: Runtime,
     pub running: Arc<Mutex<bool>>,
     tx: mpsc::Sender<bool>,
     rx: Mutex<mpsc::Receiver<bool>>,
-    #[base]
-    base: Base<Node>,
 }
 
-#[godot_api]
-impl NodeVirtual for Server {
-    fn exit_tree(&mut self) {
-        self.shutdown_sync();
-    }
-}
-
-#[godot_api]
 impl Server {
-    #[signal]
-    fn change_state();
-
-    pub fn new(base: Base<Node>) -> Self {
+    pub fn new() -> Self {
         let (tx, rx) = mpsc::channel(8);
 
         Self {
             address: "127.0.0.1:8008".parse().unwrap(),
             password: "123".to_string(),
-            runtime: Builder::new_multi_thread()
-                .worker_threads(1)
-                .enable_all()
-                .build()
-                .unwrap(),
             running: Arc::new(Mutex::new(false)),
             tx,
             rx: Mutex::new(rx),
-            base,
         }
-    }
-
-    #[func]
-    pub fn start_sync(&self) {
-        self.runtime.handle().block_on(self.start());
-    }
-
-    #[func]
-    pub fn shutdown_sync(&self) {
-        self.runtime.handle().block_on(self.shutdown());
-    }
-
-    #[func]
-    pub fn start_or_shutdown_sync(&self) {
-        self.runtime.handle().block_on(self.start_or_shutdown());
     }
 
     pub async fn start_or_shutdown(&self) -> Result<(), tonic::transport::Error> {
@@ -189,15 +153,19 @@ impl Server {
 
         let server_basic = ServerBasic::new(self.password.clone());
 
+        godot_print!("[GDSyncer] Server started.");
+
         let res = tonic::transport::Server::builder()
             .add_service(SyncerServer::new(server_basic))
             .serve_with_shutdown(self.address, self.wait_for_shutdown())
             .await;
 
+        godot_print!("[GDSyncer] The server has been shut down.");
+
         self.set_running(false).await;
 
         if let Err(error) = res {
-            Err(error.into())
+            Err(error)
         } else {
             Ok(())
         }
@@ -219,7 +187,7 @@ impl Server {
         let mut rx = self.rx.lock().await;
 
         while let Some(running) = rx.recv().await {
-            if running {
+            if !running {
                 return;
             }
         }
@@ -238,9 +206,66 @@ impl Server {
     pub async fn is_running(&self) -> bool {
         *self.running.lock().await
     }
+}
+
+#[derive(Debug, GodotClass)]
+#[class(tool, base=Node)]
+pub struct ServerWrapper {
+    runtime: Runtime,
+    server: Arc<Server>,
+    #[base]
+    base: Base<Node>,
+}
+
+#[godot_api]
+impl NodeVirtual for ServerWrapper {
+    fn exit_tree(&mut self) {
+        self.runtime.handle().block_on(self.server.shutdown());
+    }
+}
+
+#[godot_api]
+impl ServerWrapper {
+    pub fn new(base: Base<Node>) -> Self {
+        let runtime = Builder::new_multi_thread()
+            .worker_threads(1)
+            .enable_all()
+            .build()
+            .unwrap();
+        let server = Arc::new(Server::new());
+
+        Self {
+            base,
+            runtime,
+            server,
+        }
+    }
 
     #[func]
-    fn is_running_sync(&self) -> bool {
-        self.runtime.handle().block_on(self.is_running())
+    pub fn start_sync(&self) {
+        let server = self.server.clone();
+        self.runtime.handle().spawn(async move {
+            if let Err(err) = server.start().await {
+                godot_error!("{:?}", err);
+            };
+        });
+    }
+
+    #[func]
+    pub fn shutdown_sync(&self) {
+        let server = self.server.clone();
+        self.runtime.handle().spawn(async move {
+            server.shutdown().await;
+        });
+    }
+
+    #[func]
+    pub fn start_or_shutdown_sync(&self) {
+        let server = self.server.clone();
+        self.runtime.handle().spawn(async move {
+            if let Err(err) = server.start_or_shutdown().await {
+                godot_error!("{:?}", err);
+            };
+        });
     }
 }

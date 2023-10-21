@@ -9,8 +9,8 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-# godot = { git = "https://github.com/godot-rust/gdext", branch = "master" }
-godot = {git = "https://github.com/lilizoey/gdextension", branch = "feature/editor-plugin"}
+godot = { git = "https://github.com/godot-rust/gdext", branch = "master" }
+# godot = {git = "https://github.com/lilizoey/gdextension", branch = "feature/editor-plugin"}
 tokio = { version = "1", features = ["full"] }
 tonic = "0.9"
 tonic-types = "0.9"

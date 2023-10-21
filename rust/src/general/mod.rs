@@ -2,9 +2,10 @@ use godot::{
     engine::{global::PropertyHint, EditorPlugin, EditorPluginVirtual, ProjectSettings, Window},
     prelude::*,
 };
+use tokio::runtime::{Builder, Runtime};
 // use tokio::runtime::{Builder, Runtime};
 
-use crate::{client::Client, server::Server};
+use crate::{client::Client, server::ServerWrapper};
 
 const SERVER_ADDRESS: &str = "gdsyncer/server_settings/host";
 const SERVER_ADDRESS_DEFAULT: &str = "0.0.0.0:8008";
@@ -14,8 +15,9 @@ const SERVER_PASSWORD_DEFAULT: &str = "";
 #[derive(Debug, GodotClass)]
 #[class(tool, base=EditorPlugin, editor_plugin)]
 struct Entrypoint {
-    server: Gd<Server>,
+    server: Gd<ServerWrapper>,
     client: Option<Gd<Client>>,
+    runtime: Runtime,
     main_panel_windowed: Gd<Window>,
     #[base]
     editor_plugin: Base<EditorPlugin>,
@@ -24,14 +26,14 @@ struct Entrypoint {
 #[godot_api]
 impl EditorPluginVirtual for Entrypoint {
     fn init(editor_plugin: Base<EditorPlugin>) -> Self {
-        let mut server = Gd::<Server>::with_base(Server::new);
+        let mut server = Gd::<ServerWrapper>::with_base(ServerWrapper::new);
         server.set_name("Server".into());
 
-        // let runtime = Builder::new_multi_thread()
-        //     .worker_threads(1)
-        //     .enable_all()
-        //     .build()
-        //     .unwrap();
+        let runtime = Builder::new_multi_thread()
+            .worker_threads(1)
+            .enable_all()
+            .build()
+            .unwrap();
         let main_panel_windowed =
             load::<PackedScene>("res://addons/GDSyncer/scenes/main_panel_windowed.tscn")
                 .instantiate_as::<Window>();
@@ -39,6 +41,7 @@ impl EditorPluginVirtual for Entrypoint {
         let res = Self {
             server,
             client: None,
+            runtime,
             main_panel_windowed,
             editor_plugin,
         };
@@ -52,13 +55,17 @@ impl EditorPluginVirtual for Entrypoint {
         GodotString::from("GDSyncer")
     }
 
+    fn enter_tree(&mut self) {
+        godot_print!("GDSyncer initialized.");
+    }
+
     fn exit_tree(&mut self) {
         self.editor_plugin
             .get_editor_interface()
             .unwrap()
             .get_base_control()
             .unwrap()
-            .remove_child(self.main_panel_windowed.share().upcast::<Node>());
+            .remove_child(self.main_panel_windowed.clone().upcast::<Node>());
         self.main_panel_windowed.queue_free();
         self.server.bind().shutdown_sync();
 
@@ -141,9 +148,8 @@ impl Entrypoint {
             &[SERVER_ADDRESS.to_variant(), SERVER_PASSWORD.to_variant()],
         );
 
-        let server_callable =
-            Callable::from_object_method(self.server.share(), "start_or_shutdown_sync");
-        main_panel.connect("start_called".into(), server_callable);
+        let server_callable = self.server.callable("start_or_shutdown_sync");
+        main_panel.connect("create_server".into(), server_callable);
 
         let client_callable = self.editor_plugin.callable("create_client");
         self.editor_plugin
@@ -153,7 +159,7 @@ impl Entrypoint {
 
         self.main_panel_windowed.set_title(plugin_name.clone());
 
-        let close_callable = Callable::from_object_method(self.main_panel_windowed.share(), "hide");
+        let close_callable = self.main_panel_windowed.callable("hide");
         self.main_panel_windowed
             .connect("close_requested".into(), close_callable);
 
@@ -164,9 +170,9 @@ impl Entrypoint {
             .unwrap()
             .get_base_control()
             .unwrap()
-            .add_child(self.main_panel_windowed.share().upcast::<Node>());
+            .add_child(self.main_panel_windowed.clone().upcast::<Node>());
 
-        let open_callable = Callable::from_object_method(self.main_panel_windowed.share(), "show");
+        let open_callable = self.main_panel_windowed.callable("show");
 
         self.editor_plugin
             .add_tool_menu_item(plugin_name, open_callable);

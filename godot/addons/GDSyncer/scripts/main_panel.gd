@@ -5,7 +5,8 @@ extends Control
 var server_address_setting: String
 var server_password_setting: String
 
-signal start_called
+signal create_server
+signal create_client
 
 
 func _on_save_config_button_pressed() -> void:
@@ -35,4 +36,8 @@ func set_vars(
 
 
 func _on_start_button_pressed():
-	emit_signal("start_called")
+	emit_signal("create_server")
+
+
+func _on_connect_button_pressed():
+	emit_signal("create_client")

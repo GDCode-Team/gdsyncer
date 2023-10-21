@@ -27,7 +27,7 @@ enabled=PackedStringArray("res://addons/plugin_refresher/plugin.cfg")
 
 [gdsyncer]
 
-server_settings/host="0.0.0.0:1234"
+server_settings/host=""
 
 [rendering]
 
