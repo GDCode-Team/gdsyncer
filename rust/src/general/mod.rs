@@ -5,10 +5,7 @@ use godot::{
 use tokio::runtime::{Builder, Runtime};
 // use tokio::runtime::{Builder, Runtime};
 
-use crate::{
-    client::{self, Client},
-    server::ServerWrapper,
-};
+use crate::{client::ClientWrapper, server::ServerWrapper};
 
 const SERVER_ADDRESS: &str = "gdsyncer/server_settings/host";
 const SERVER_ADDRESS_DEFAULT: &str = "0.0.0.0:8008";
@@ -19,7 +16,7 @@ const SERVER_PASSWORD_DEFAULT: &str = "";
 #[class(tool, base=EditorPlugin, editor_plugin)]
 struct Entrypoint {
     server: Gd<ServerWrapper>,
-    client: Gd<Client>,
+    client: Gd<ClientWrapper>,
     runtime: Runtime,
     main_panel_windowed: Gd<Window>,
     #[base]
@@ -31,7 +28,7 @@ impl EditorPluginVirtual for Entrypoint {
     fn init(editor_plugin: Base<EditorPlugin>) -> Self {
         let mut server = Gd::<ServerWrapper>::with_base(ServerWrapper::new);
         server.set_name("Server".into());
-        let mut client = Gd::<Client>::with_base(Client::new);
+        let mut client = Gd::<ClientWrapper>::with_base(ClientWrapper::new);
         client.set_name("Client".into());
 
         let runtime = Builder::new_multi_thread()
@@ -147,17 +144,13 @@ impl Entrypoint {
 
     #[func]
     pub fn connect_client(&mut self) {
-        let mut client = self.client.bind_mut();
+        let client = self.client.bind();
 
         if client.is_connected() {
             godot_warn!("Client already running!");
         }
 
-        if let Err(err) = client.connect_to("http://127.0.0.1:8008".into()) {
-            godot_error!("An error appeared when trying to connect: {:?}", err);
-        } else {
-            godot_print!("Client connected successfully.")
-        }
+        client.connect_sync("http://127.0.0.1:8008".into());
     }
 
     #[func]
