@@ -10,7 +10,7 @@ pub mod syncer {
 #[derive(GodotClass)]
 #[class(tool, base=Node)]
 pub struct Client {
-    client: SyncerClient<Channel>,
+    client: Option<SyncerClient<Channel>>,
     runtime: Runtime,
     #[base]
     base: Base<Node>,
@@ -21,19 +21,30 @@ impl NodeVirtual for Client {}
 
 #[godot_api]
 impl Client {
-    fn connect(base: Base<Node>, dst: GodotString) -> Result<Self, tonic::transport::Error> {
+    pub fn new(base: Base<Node>) -> Self {
         let runtime = Builder::new_multi_thread()
             .worker_threads(1)
             .enable_all()
             .build()
             .unwrap();
 
-        let client = runtime.block_on(SyncerClient::connect(dst.to_string()))?;
-
-        Ok(Self {
-            client,
+        Self {
+            client: None,
             runtime,
             base,
-        })
+        }
+    }
+
+    pub fn connect_to(&mut self, dst: String) -> Result<(), tonic::transport::Error> {
+        self.client = Some(
+            self.runtime
+                .block_on(SyncerClient::connect(dst.to_string()))?,
+        );
+
+        Ok(())
+    }
+
+    pub fn is_connected(&self) -> bool {
+        self.client.is_some()
     }
 }

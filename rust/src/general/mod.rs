@@ -5,7 +5,10 @@ use godot::{
 use tokio::runtime::{Builder, Runtime};
 // use tokio::runtime::{Builder, Runtime};
 
-use crate::{client::Client, server::ServerWrapper};
+use crate::{
+    client::{self, Client},
+    server::ServerWrapper,
+};
 
 const SERVER_ADDRESS: &str = "gdsyncer/server_settings/host";
 const SERVER_ADDRESS_DEFAULT: &str = "0.0.0.0:8008";
@@ -16,7 +19,7 @@ const SERVER_PASSWORD_DEFAULT: &str = "";
 #[class(tool, base=EditorPlugin, editor_plugin)]
 struct Entrypoint {
     server: Gd<ServerWrapper>,
-    client: Option<Gd<Client>>,
+    client: Gd<Client>,
     runtime: Runtime,
     main_panel_windowed: Gd<Window>,
     #[base]
@@ -28,6 +31,8 @@ impl EditorPluginVirtual for Entrypoint {
     fn init(editor_plugin: Base<EditorPlugin>) -> Self {
         let mut server = Gd::<ServerWrapper>::with_base(ServerWrapper::new);
         server.set_name("Server".into());
+        let mut client = Gd::<Client>::with_base(Client::new);
+        client.set_name("Client".into());
 
         let runtime = Builder::new_multi_thread()
             .worker_threads(1)
@@ -40,7 +45,7 @@ impl EditorPluginVirtual for Entrypoint {
 
         let res = Self {
             server,
-            client: None,
+            client,
             runtime,
             main_panel_windowed,
             editor_plugin,
@@ -82,9 +87,6 @@ impl EditorPluginVirtual for Entrypoint {
 impl Entrypoint {
     #[signal]
     fn code_changed();
-
-    #[signal]
-    fn connect_called();
 
     #[func]
     pub fn init_properties(&self) {
@@ -137,12 +139,30 @@ impl Entrypoint {
         project_settings.set_initial_value(setting, value);
     }
 
+    pub fn get_main_panel(&self) -> Gd<Node> {
+        self.main_panel_windowed
+            .find_child("MainPanel".into())
+            .unwrap()
+    }
+
+    #[func]
+    pub fn connect_client(&mut self) {
+        let mut client = self.client.bind_mut();
+
+        if client.is_connected() {
+            godot_warn!("Client already running!");
+        }
+
+        if let Err(err) = client.connect_to("http://127.0.0.1:8008".into()) {
+            godot_error!("An error appeared when trying to connect: {:?}", err);
+        } else {
+            godot_print!("Client connected successfully.")
+        }
+    }
+
     #[func]
     pub fn init_interface(&mut self) {
-        let mut main_panel = self
-            .main_panel_windowed
-            .find_child("MainPanel".into())
-            .unwrap();
+        let mut main_panel = self.get_main_panel();
         main_panel.call(
             "set_vars".into(),
             &[SERVER_ADDRESS.to_variant(), SERVER_PASSWORD.to_variant()],
@@ -151,9 +171,8 @@ impl Entrypoint {
         let server_callable = self.server.callable("start_or_shutdown_sync");
         main_panel.connect("create_server".into(), server_callable);
 
-        let client_callable = self.editor_plugin.callable("create_client");
-        self.editor_plugin
-            .connect("connect_called".into(), client_callable);
+        let client_callable = self.editor_plugin.callable("connect_client");
+        main_panel.connect("create_client".into(), client_callable);
 
         let plugin_name = self.get_plugin_name();
 
